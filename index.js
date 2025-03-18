@@ -6,25 +6,36 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 const port = 3000;
 
-let posts = [];
+let posts = [{
+    id: 0,
+    title: "test123",
+    content: "test123",
+    catogory: "test123",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+}
+];
 
-let id = 0
+let id = 1
 
 app.get("/posts", (req, res) => {
-    const query = req.query;
-    if(!query) {
+    const query = req.query.term;
+    if (Object.keys(req.query).length === 0) {
         res.status(200).json(posts);
     } else {
-        res.send("error");
+        const findinArray = posts.filter((post) =>
+        post.title.toLowerCase().includes(query.toLowerCase()) || 
+        post.content.toLowerCase().includes(query.toLowerCase()) ||
+        post.catogory.toLowerCase().includes(query.toLowerCase()));
+        res.json(findinArray);
     }
-
 });
 
 
 app.post("/posts", (req, res) => {
     const newPost = {
         id: id++,
-        title: req.body.title || "untitled", 
+        title: req.body.title || "untitled",
         content: req.body.content || "untitled",
         catogory: req.body.catogory || "untitled",
         createdAt: new Date(),
@@ -49,18 +60,18 @@ app.put("/posts/:id", (req, res) => {
     const findPost = posts.find((post) => post.id == id);
     const newPost = {
         id: findPost.id,
-        title: req.body.title || findPost.title, 
+        title: req.body.title || findPost.title,
         content: req.body.content || findPost.content,
         catogory: req.body.catogory || findPost.catogory,
         createdAt: findPost.createdAt,
         updatedAt: new Date(),
     }
-    posts[findPost.id] = newPost; 
+    posts[findPost.id] = newPost;
     res.send(newPost);
 
 })
 
-app.delete("/posts/:id", (req, res) => { 
+app.delete("/posts/:id", (req, res) => {
     const id = parseInt(req.params.id);
     const findpostIndex = posts.findIndex((post) => post.id === id);
     posts.splice(findpostIndex, 1);
